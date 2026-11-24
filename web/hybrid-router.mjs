@@ -1,7 +1,8 @@
 /**
- * FieldScribe Local — Hybrid On-Device & Cloud Inference Router
- * Built for #BuildHybridAI 2026 using Firebase AI Logic (InferenceMode.PREFER_ON_DEVICE)
- * with strict client-side PII redaction before any opt-in cloud fallback.
+ * FieldScribe Local — Podium Hybrid On-Device & Cloud Inference Router
+ * Built for #BuildHybridAI 2026 across Web PWA & Native Swift 6 iOS.
+ * Combines Firebase AI Logic (InferenceMode.PREFER_ON_DEVICE / ONLY_ON_DEVICE),
+ * W3C Gemini Nano probing, client-side PII redaction, and HL7 FHIR R4 export.
  */
 
 export const HybridMode = Object.freeze({
@@ -9,6 +10,8 @@ export const HybridMode = Object.freeze({
   PREFER_ON_DEVICE: "PREFER_ON_DEVICE",
   HYBRID_CLOUD_SYNTHESIS: "HYBRID_CLOUD_SYNTHESIS",
 });
+
+export const DEFAULT_CLOUD_GATEWAY_URL = "https://fieldscribe-hybrid-gate.wholetrou.workers.dev/synthesize";
 
 const PII_PATTERNS = [
   { label: "SSN", regex: /\b\d{3}-\d{2}-\d{4}\b/g, token: "[REDACTED-SSN]" },
@@ -18,10 +21,6 @@ const PII_PATTERNS = [
   { label: "MRN", regex: /\b(?:MRN|Patient ID|Case #|Record #)\s*[:=-]?\s*[A-Z0-9-]{4,16}\b/gi, token: "ID: [REDACTED-ID]" },
 ];
 
-/**
- * Strips direct personal identifiers on-device before any prompt is allowed
- * to cross into cloud fallback inference.
- */
 export function redactSensitiveIdentifiers(rawText) {
   let sanitized = String(rawText || "");
   const counts = {};
@@ -43,9 +42,6 @@ export function redactSensitiveIdentifiers(rawText) {
   };
 }
 
-/**
- * Probes browser-native W3C / Chrome Built-In Prompt API (Gemini Nano) availability.
- */
 export async function probeOnDeviceModel(globalScope = globalThis) {
   try {
     if (globalScope?.LanguageModel && typeof globalScope.LanguageModel.availability === "function") {
@@ -67,13 +63,9 @@ export async function probeOnDeviceModel(globalScope = globalThis) {
   } catch (err) {
     return { supported: false, status: "error", error: err.message, apiSurface: "none" };
   }
-  return { supported: false, status: "unavailable", apiSurface: "deterministic-local-fallback" };
+  return { supported: false, status: "unavailable", apiSurface: "deterministic-local-engine" };
 }
 
-/**
- * Deterministic local structured extractor ensuring 100% offline reliability
- * even on browsers that have not yet downloaded Gemini Nano weights.
- */
 export function extractStructuredIntakeLocally(rawText) {
   const clean = String(rawText || "").trim();
   if (!clean) {
@@ -102,10 +94,10 @@ export function extractStructuredIntakeLocally(rawText) {
   const accommodations = [];
   const accommodationMatchers = [
     { re: /\b(wheelchair|ramp|step-free|elevator|transfer)\b/i, item: "Step-free / wheelchair mobility access required" },
-    { re: /\b(asl|deaf|hard of hearing|caption|hearing aid)\b/i, item: "Captioning or ASL communication support" },
-    { re: /\b(screen reader|low vision|braille|large print|high contrast)\b/i, item: "Large-print / screen-reader accessible materials" },
-    { re: /\b(spanish|mandarin|arabic|french|interpreter|translation|non-english)\b/i, item: "Certified language interpretation requested" },
-    { re: /\b(quiet room|sensory|neurodivergent|lighting)\b/i, item: "Low-stimulation sensory intake environment" },
+    { re: /\b(asl|deaf|hard of hearing|caption|hearing aid)\b/i, item: "Certified ASL or live captioning communication support" },
+    { re: /\b(screen reader|low vision|braille|large print|high contrast)\b/i, item: "High-contrast large-print / screen-reader materials" },
+    { re: /\b(spanish|mandarin|arabic|french|interpreter|translation|non-english)\b/i, item: "Certified medical/community language interpretation" },
+    { re: /\b(quiet room|sensory|neurodivergent|lighting)\b/i, item: "Low-stimulation sensory intake room" },
   ];
   for (const m of accommodationMatchers) {
     if (m.re.test(clean)) accommodations.push(m.item);
@@ -120,12 +112,12 @@ export function extractStructuredIntakeLocally(rawText) {
   if (hrMatch) vitalsOrSignals.push(hrMatch.join(", "));
 
   const followUpActions = sentences
-    .filter(s => /\b(need|needs|schedule|refer|provide|deliver|check|confirm|arrange|bring|request)\b/i.test(s))
+    .filter(s => /\b(need|needs|schedule|refer|provide|deliver|check|confirm|arrange|bring|request|renewal|refill)\b/i.test(s))
     .slice(0, 4)
     .map(s => redactSensitiveIdentifiers(s).sanitizedText);
 
   if (followUpActions.length === 0 && sentences.length > 0) {
-    followUpActions.push("Review intake summary with care/accessibility coordinator.");
+    followUpActions.push("Review de-identified intake checklist with care coordinator.");
   }
 
   const summarySource = redactSensitiveIdentifiers(sentences.slice(0, 2).join(" ")).sanitizedText;
@@ -140,12 +132,74 @@ export function extractStructuredIntakeLocally(rawText) {
 }
 
 /**
- * Executes hybrid inference with strict privacy and telemetry accounting:
- * 1. ONLY_ON_DEVICE -> runs browser Gemini Nano or deterministic local extractor (0 cloud bytes).
- * 2. PREFER_ON_DEVICE -> uses Firebase AI Logic PREFER_ON_DEVICE / local Nano first;
- *    only escalates redacted payload if cloud adapter is configured & online.
- * 3. HYBRID_CLOUD_SYNTHESIS -> redacts PII locally first, then synthesizes guidance via cloud adapter.
+ * Generates an interoperable HL7 FHIR R4 Bundle (Communication + Observation + Flag)
+ * containing strictly de-identified structured outputs.
  */
+export function buildFhirR4Bundle(structured, telemetry) {
+  const nowIso = new Date().toISOString();
+  const entries = [
+    {
+      resource: {
+        resourceType: "Communication",
+        status: "completed",
+        priority: structured.urgency || "routine",
+        sent: nowIso,
+        payload: [{ contentString: structured.summary || "" }],
+        note: [{ text: `Route=${telemetry.route}; CloudBytes=${telemetry.cloudBytesSent}; RedactedPII=${telemetry.piiRedactedCount}` }],
+      },
+    },
+  ];
+
+  for (const acc of structured.accommodations || []) {
+    entries.push({
+      resource: {
+        resourceType: "Flag",
+        status: "active",
+        category: [{ text: "Accessibility & Communication Accommodation" }],
+        code: { text: acc },
+      },
+    });
+  }
+
+  for (const sig of structured.vitalsOrSignals || []) {
+    entries.push({
+      resource: {
+        resourceType: "Observation",
+        status: "preliminary",
+        code: { text: "Field Vital / Signal" },
+        valueString: sig,
+      },
+    });
+  }
+
+  return {
+    resourceType: "Bundle",
+    type: "collection",
+    timestamp: nowIso,
+    entry: entries,
+  };
+}
+
+export function buildAccessibleCareMarkdown(structured, telemetry) {
+  const lines = [
+    `# FieldScribe De-Identified Care Handoff (${String(structured.urgency || "routine").toUpperCase()})`,
+    `- **Inference Route**: \`${telemetry.route}\` (\`${telemetry.cloudBytesSent} B\` cloud egress · \`${telemetry.piiRedactedCount}\` PII tokens masked locally)`,
+    ``,
+    `## Summary`,
+    structured.summary || "None",
+    ``,
+    `## Accessibility & Communication Accommodations`,
+    ...((structured.accommodations?.length ? structured.accommodations : ["Standard intake setup"]).map(x => `- [ ] ${x}`)),
+    ``,
+    `## Vitals & Signals`,
+    ...((structured.vitalsOrSignals?.length ? structured.vitalsOrSignals : ["No vitals recorded"]).map(x => `- ${x}`)),
+    ``,
+    `## Recommended Next Steps`,
+    ...((structured.followUpActions?.length ? structured.followUpActions : ["Coordinator review"]).map(x => `- [ ] ${x}`)),
+  ];
+  return lines.join("\n");
+}
+
 export async function runHybridIntakeSession({
   rawText,
   mode = HybridMode.PREFER_ON_DEVICE,
@@ -189,18 +243,17 @@ export async function runHybridIntakeSession({
           modeRequested: mode,
           cloudBytesSent: 0,
           piiRedactedCount: redaction.totalRedacted,
+          redactionBreakdown: redaction.counts,
           latencyMs: Math.round((performance.now() - t0) * 10) / 10,
           offlineSafe: true,
         },
         redactedPreview: redaction.sanitizedText,
       };
-    } catch (_) {
-      // Fall through cleanly to deterministic local engine or cloud fallback
-    }
+    } catch (_) {}
   }
 
-  // Path 2: Strictly local mode OR offline OR no cloud adapter configured -> 0 bytes cloud egress
-  if (mode === HybridMode.ONLY_ON_DEVICE || !isOnline || typeof cloudAdapter !== "function") {
+  // Path 2: Local execution in ONLY_ON_DEVICE, PREFER_ON_DEVICE (without Nano), offline, or missing cloud adapter
+  if (mode !== HybridMode.HYBRID_CLOUD_SYNTHESIS || !isOnline || typeof cloudAdapter !== "function") {
     const structured = extractStructuredIntakeLocally(rawText);
     return {
       structured,
@@ -209,6 +262,7 @@ export async function runHybridIntakeSession({
         modeRequested: mode,
         cloudBytesSent: 0,
         piiRedactedCount: redaction.totalRedacted,
+        redactionBreakdown: redaction.counts,
         latencyMs: Math.round((performance.now() - t0) * 10) / 10,
         offlineSafe: true,
       },
@@ -216,11 +270,11 @@ export async function runHybridIntakeSession({
     };
   }
 
-  // Path 3: Opt-in Firebase AI Logic Cloud Escalation (ONLY receives PII-redacted text!)
+  // Path 3: Opt-in Hybrid Cloud Synthesis (strictly receives PII-redacted text!)
   const payloadBytes = new TextEncoder().encode(redaction.sanitizedText).length;
   const cloudResult = await cloudAdapter({
     sanitizedText: redaction.sanitizedText,
-    firebaseInferenceMode: mode === HybridMode.PREFER_ON_DEVICE ? "PREFER_ON_DEVICE" : "PREFER_IN_CLOUD",
+    firebaseInferenceMode: "PREFER_IN_CLOUD",
   });
 
   return {
@@ -230,6 +284,7 @@ export async function runHybridIntakeSession({
       modeRequested: mode,
       cloudBytesSent: payloadBytes,
       piiRedactedCount: redaction.totalRedacted,
+      redactionBreakdown: redaction.counts,
       latencyMs: Math.round((performance.now() - t0) * 10) / 10,
       offlineSafe: false,
     },
@@ -237,11 +292,21 @@ export async function runHybridIntakeSession({
   };
 }
 
-/**
- * Helper binding official `firebase/ai` SDK (`getAI`, `getGenerativeModel`, `InferenceMode`)
- * when the operator supplies their Firebase Web project config.
- */
-export async function createFirebaseAiCloudAdapter(firebaseConfig, modelName = "gemini-3.5-flash-lite") {
+export function createServerlessGatewayAdapter(endpoint = DEFAULT_CLOUD_GATEWAY_URL, fetchImpl = fetch) {
+  return async ({ sanitizedText }) => {
+    const resp = await fetchImpl(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sanitizedText }),
+    });
+    if (!resp.ok) {
+      throw new Error("Gateway HTTP " + resp.status);
+    }
+    return await resp.json();
+  };
+}
+
+export async function createFirebaseAiCloudAdapter(firebaseConfig, modelName = "gemini-3.1-flash-lite") {
   const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js");
   const { getAI, getGenerativeModel, GoogleAIBackend, InferenceMode } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-ai.js");
 

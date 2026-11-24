@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "1.0",
+  "bundleName": "FieldScribeLocal.icon",
+  "cornerCurve": "continuous",
+  "appearances": {
+    "Default": {
+      "background": "#155240",
+      "foregroundPrimary": "#F5F6F3",
+      "foregroundAccent": "#8AD4B9",
+      "specularGlass": true
+    },
+    "Dark": {
+      "background": "#0B1612",
+      "foregroundPrimary": "#E7F4EE",
+      "foregroundAccent": "#34D399",
+      "specularGlass": true
+    },
+    "Mono": {
+      "background": "#121A17",
+      "foregroundPrimary": "#FFFFFF",
+      "foregroundAccent": "#D4DCD8",
+      "specularGlass": false
+    }
+  },
+  "layers": [
+    { "id": "plinth-shield", "zDepth": 0.15, "symbol": "shield.lefthalf.filled" },
+    { "id": "scribe-waveform", "zDepth": 0.42, "symbol": "waveform.path.ecg" }
+  ]
+}

@@ -1,4 +1,13 @@
 import Foundation
+#if canImport(FoundationModels)
+import FoundationModels
+#endif
+#if canImport(FirebaseAILogic)
+import FirebaseAILogic
+#endif
+#if canImport(FirebaseAppCheck)
+import FirebaseAppCheck
+#endif
 
 /// Routing policy aligning iOS Apple FoundationModels + FirebaseAILogic with the Web PWA.
 public enum FieldScribeInferencePolicy: String, Sendable, CaseIterable {
@@ -73,12 +82,34 @@ public actor FieldScribeHybridCoordinator {
     ) async throws -> (StructuredFieldIntake, HybridTelemetryReceipt) {
         let (sanitized, piiCount) = redactSensitiveIdentifiers(rawText)
 
+        #if canImport(FoundationModels)
+        if policy != .hybridCloudRedacted, #available(iOS 26.0, macOS 26.0, *) {
+            if SystemLanguageModel.default.isAvailable {
+                let session = LanguageModelSession()
+                let prompt = "Return JSON {urgency, summary, accommodations, followUpActions, vitalsOrSignals} for: \(sanitized)"
+                if let resp = try? await session.respond(to: prompt),
+                   let data = resp.content.data(using: .utf8),
+                   let decoded = try? JSONDecoder().decode(StructuredFieldIntake.self, from: data) {
+                    return (
+                        decoded,
+                        HybridTelemetryReceipt(
+                            route: "ON_DEVICE_APPLE_FOUNDATION_MODELS",
+                            cloudBytesSent: 0,
+                            piiRedactedCount: piiCount,
+                            offlineSafe: true
+                        )
+                    )
+                }
+            }
+        }
+        #endif
+
         if policy == .onlyOnDevice || !isOnline || cloudGenerator == nil {
             let local = extractLocally(from: rawText, sanitizedSummarySource: sanitized)
             return (
                 local,
                 HybridTelemetryReceipt(
-                    route: "ON_DEVICE_APPLE_FOUNDATION_OR_LOCAL",
+                    route: "ON_DEVICE_LOCAL_ENGINE",
                     cloudBytesSent: 0,
                     piiRedactedCount: piiCount,
                     offlineSafe: true
@@ -103,8 +134,36 @@ public actor FieldScribeHybridCoordinator {
         let fallback = extractLocally(from: rawText, sanitizedSummarySource: sanitized)
         return (
             fallback,
-            HybridTelemetryReceipt(route: "ON_DEVICE_LOCAL", cloudBytesSent: 0, piiRedactedCount: piiCount, offlineSafe: true)
+            HybridTelemetryReceipt(route: "ON_DEVICE_LOCAL_ENGINE", cloudBytesSent: 0, piiRedactedCount: piiCount, offlineSafe: true)
         )
+    }
+
+    /// Exports an HL7 FHIR R4 Collection Bundle representing the de-identified intake.
+    public nonisolated func buildFHIRBundleJSON(from intake: StructuredFieldIntake) throws -> String {
+        let payload: [String: Any] = [
+            "resourceType": "Bundle",
+            "type": "collection",
+            "timestamp": ISO8601DateFormatter().string(from: Date()),
+            "entry": [
+                [
+                    "resource": [
+                        "resourceType": "Communication",
+                        "status": "completed",
+                        "priority": intake.urgency,
+                        "payload": [["contentString": intake.summary]]
+                    ]
+                ],
+                [
+                    "resource": [
+                        "resourceType": "Flag",
+                        "status": "active",
+                        "code": ["text": intake.accommodations.joined(separator: "; ")]
+                    ]
+                ]
+            ]
+        ]
+        let data = try JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys])
+        return String(data: data, encoding: .utf8) ?? "{}"
     }
 
     private func extractLocally(from rawText: String, sanitizedSummarySource: String) -> StructuredFieldIntake {

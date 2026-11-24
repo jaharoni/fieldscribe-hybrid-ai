@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -9,24 +9,31 @@
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
+      color-scheme: light;
       --canvas: #F5F6F3;
       --plinth: #FFFFFF;
       --rail: #EAECE6;
       --surface-soft: #EEF1EB;
+      --panel-head-bg: rgba(245, 246, 243, 0.72);
+      --topbar-bg: rgba(255, 255, 255, 0.9);
       --ink: #121A17;
-      --ink-secondary: #495751;
-      --ink-muted: #5F6F68;
-      --border-hairline: rgba(18, 26, 23, 0.12);
-      --border-strong: rgba(18, 26, 23, 0.25);
+      --ink-secondary: #43524C;
+      --ink-muted: #586962;
+      --border-hairline: rgba(18, 26, 23, 0.13);
+      --border-strong: rgba(18, 26, 23, 0.28);
       --forest: #155240;
       --forest-hover: #0F3E30;
-      --forest-soft: #E3F2EC;
+      --forest-soft: #E1F2EB;
       --cobalt: #1D4B82;
-      --cobalt-soft: #E7F0FA;
-      --ochre: #8C5112;
-      --ochre-soft: #FBF1E2;
-      --crimson: #912828;
-      --crimson-soft: #FCEBEB;
+      --cobalt-soft: #E6EFFA;
+      --ochre: #854B0E;
+      --ochre-soft: #FBF0DF;
+      --crimson: #8E2424;
+      --crimson-soft: #FCEAEA;
+      --plum: #5C2D73;
+      --plum-soft: #F3E9F8;
+      --scrollbar-thumb: rgba(21, 82, 64, 0.28);
+      --scrollbar-track: rgba(18, 26, 23, 0.04);
       --font-display: "Instrument Serif", Georgia, serif;
       --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -34,8 +41,61 @@
       --shadow-plinth: 0 1px 2px rgba(18, 26, 23, 0.04), 0 12px 28px -16px rgba(18, 26, 23, 0.12);
     }
 
+    html[data-theme="dark"] {
+      color-scheme: dark;
+      --canvas: #0D1311;
+      --plinth: #141D1A;
+      --rail: #101815;
+      --surface-soft: #1B2723;
+      --panel-head-bg: rgba(20, 29, 26, 0.86);
+      --topbar-bg: rgba(16, 24, 21, 0.9);
+      --ink: #EDF3F0;
+      --ink-secondary: #B4C4BC;
+      --ink-muted: #8FA399;
+      --border-hairline: rgba(237, 243, 240, 0.13);
+      --border-strong: rgba(237, 243, 240, 0.28);
+      --forest: #52C79F;
+      --forest-hover: #6BD6B1;
+      --forest-soft: rgba(82, 199, 159, 0.16);
+      --cobalt: #7EB5FA;
+      --cobalt-soft: rgba(126, 181, 250, 0.16);
+      --ochre: #F2B866;
+      --ochre-soft: rgba(242, 184, 102, 0.16);
+      --crimson: #F58C8C;
+      --crimson-soft: rgba(245, 140, 140, 0.16);
+      --plum: #D5A3F0;
+      --plum-soft: rgba(213, 163, 240, 0.16);
+      --scrollbar-thumb: rgba(82, 199, 159, 0.34);
+      --scrollbar-track: rgba(237, 243, 240, 0.05);
+      --shadow-plinth: 0 1px 2px rgba(0, 0, 0, 0.32), 0 16px 32px -16px rgba(0, 0, 0, 0.55);
+    }
+
     *, *::before, *::after {
       box-sizing: border-box;
+    }
+
+    ::selection {
+      background: var(--forest-soft);
+      color: var(--forest);
+    }
+
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    }
+
+    *::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+
+    *::-webkit-scrollbar-track {
+      background: var(--scrollbar-track);
+    }
+
+    *::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border-radius: 999px;
     }
 
     html, body {
@@ -46,13 +106,14 @@
       overflow: hidden;
       background-color: var(--canvas);
       background-image:
-        radial-gradient(circle at 15% 12%, rgba(21, 82, 64, 0.05), transparent 45%),
-        radial-gradient(circle at 86% 85%, rgba(29, 75, 130, 0.045), transparent 45%),
-        radial-gradient(rgba(18, 26, 23, 0.035) 1px, transparent 0);
+        radial-gradient(circle at 15% 12%, rgba(21, 82, 64, 0.06), transparent 45%),
+        radial-gradient(circle at 86% 85%, rgba(29, 75, 130, 0.05), transparent 45%),
+        radial-gradient(var(--border-hairline) 1px, transparent 0);
       background-size: 100% 100%, 100% 100%, 21px 21px;
       color: var(--ink);
       font-family: var(--font-sans);
       line-height: 1.55;
+      caret-color: var(--forest);
       -webkit-font-smoothing: antialiased;
     }
 
@@ -70,9 +131,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 13px;
-      padding: 13px 21px;
-      background: rgba(255, 255, 255, 0.88);
+      gap: 12px;
+      padding: 10px 21px;
+      background: var(--topbar-bg);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border-hairline);
@@ -80,15 +141,16 @@
 
     .brand-group {
       display: flex;
-      align-items: baseline;
-      gap: 13px;
+      align-items: center;
+      gap: 12px;
       min-width: 0;
+      flex-wrap: wrap;
     }
 
     .brand-title {
       margin: 0;
       font-family: var(--font-display);
-      font-size: clamp(1.2rem, 2.2vw, 1.85rem);
+      font-size: clamp(1.25rem, 2.1vw, 1.85rem);
       font-weight: 400;
       letter-spacing: -0.03em;
       line-height: 1.05;
@@ -97,20 +159,20 @@
 
     .egress-badge {
       font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
       font-size: 11px;
       font-weight: 600;
       padding: 5px 11px;
       border-radius: 999px;
       background: var(--forest-soft);
       color: var(--forest);
-      border: 1px solid rgba(21, 82, 64, 0.28);
+      border: 1px solid var(--border-hairline);
       white-space: nowrap;
     }
 
     .egress-badge.is-hybrid {
       background: var(--cobalt-soft);
       color: var(--cobalt);
-      border-color: rgba(29, 75, 130, 0.28);
     }
 
     .telemetry-strip {
@@ -122,8 +184,9 @@
 
     .telemetry-pill {
       font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
       font-size: 11.5px;
-      padding: 6px 13px;
+      padding: 6px 12px;
       border-radius: 999px;
       background: var(--surface-soft);
       border: 1px solid var(--border-hairline);
@@ -165,10 +228,17 @@
       outline-offset: 2px;
     }
 
+    .theme-btn {
+      font-size: 12px;
+      background: var(--surface-soft);
+      color: var(--ink);
+      padding: 6px 12px;
+    }
+
     .mobile-tabs {
       display: none;
       flex: 0 0 auto;
-      padding: 8px 13px;
+      padding: 6px 13px;
       background: var(--rail);
       border-bottom: 1px solid var(--border-hairline);
       gap: 8px;
@@ -194,9 +264,10 @@
       flex: 1 1 0;
       min-height: 0;
       display: grid;
-      grid-template-columns: 310px minmax(340px, 1fr) minmax(360px, 460px);
+      grid-template-columns: 316px minmax(340px, 1fr) minmax(360px, 468px);
+      grid-template-rows: minmax(0, 1fr);
       gap: 13px;
-      padding: 13px 21px 21px;
+      padding: 13px 21px 18px;
       overflow: visible;
       container-type: inline-size;
     }
@@ -214,11 +285,11 @@
 
     .panel-head {
       flex: 0 0 auto;
-      padding: 13px 21px;
+      padding: 12px 18px;
       border-bottom: 1px solid var(--border-hairline);
       border-top-left-radius: 13px;
       border-top-right-radius: 13px;
-      background: rgba(245, 246, 243, 0.6);
+      background: var(--panel-head-bg);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -227,7 +298,7 @@
 
     .panel-head h2 {
       margin: 0;
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.03em;
       text-transform: uppercase;
@@ -238,7 +309,7 @@
       flex: 1 1 0;
       min-height: 0;
       overflow-y: auto;
-      padding: 13px 21px 21px;
+      padding: 13px 18px 18px;
     }
 
     .mode-card {
@@ -246,7 +317,7 @@
       text-align: left;
       flex-direction: column;
       align-items: flex-start;
-      padding: 13px;
+      padding: 12px 13px;
       margin-bottom: 8px;
       background: var(--canvas);
     }
@@ -257,7 +328,7 @@
     }
 
     .mode-card-title {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--ink);
     }
@@ -271,7 +342,7 @@
 
     .field-label {
       display: block;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       color: var(--ink-secondary);
       margin-bottom: 6px;
@@ -279,10 +350,61 @@
       letter-spacing: 0.02em;
     }
 
+    .voice-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-hairline);
+      background: var(--surface-soft);
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .voice-btn {
+      font-size: 12.5px;
+      background: var(--plinth);
+    }
+
+    .voice-btn[aria-pressed="true"] {
+      background: var(--crimson-soft);
+      color: var(--crimson);
+      border-color: var(--crimson);
+    }
+
+    .waveform-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1 1 150px;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .voice-status {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ink-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #voiceWaveform {
+      width: 132px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--canvas);
+      border: 1px solid var(--border-hairline);
+      flex: 0 0 auto;
+    }
+
     .intake-textarea {
       width: 100%;
-      min-height: 170px;
-      padding: 13px;
+      min-height: 148px;
+      padding: 12px 13px;
       border-radius: 10px;
       border: 1px solid var(--border-hairline);
       background: var(--canvas);
@@ -291,27 +413,33 @@
       font-size: 14px;
       line-height: 1.55;
       resize: vertical;
-      margin-bottom: 13px;
+      margin-bottom: 10px;
     }
 
-    .sample-row, .action-row {
+    .sample-row, .action-row, .export-row {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 13px;
+      margin-bottom: 12px;
     }
 
-    .sample-btn {
+    .sample-btn, .export-btn {
       font-size: 12px;
       background: var(--surface-soft);
-      color: var(--ink-secondary);
+      color: var(--ink);
     }
 
     .primary-run-btn {
       flex: 1 1 200px;
-      background: var(--forest);
-      border-color: var(--forest);
+      background: #155240;
+      border-color: #155240;
       color: #FFFFFF;
+    }
+
+    html[data-theme="dark"] .primary-run-btn {
+      background: #52C79F;
+      border-color: #52C79F;
+      color: #0B1411;
     }
 
     .primary-run-btn:hover {
@@ -320,28 +448,58 @@
     }
 
     .redaction-box, .result-card, .config-box {
-      padding: 13px;
+      padding: 12px 13px;
       border-radius: 10px;
       border: 1px solid var(--border-hairline);
       background: var(--canvas);
-      margin-bottom: 13px;
+      margin-bottom: 12px;
     }
 
     .result-card h3, .redaction-box h3, .config-box h3 {
       margin: 0 0 6px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.03em;
       color: var(--ink-secondary);
     }
 
-    .result-card p, .redaction-box p {
+    .result-card p, .redaction-box p, .config-note {
       margin: 0;
       font-size: 13.5px;
       max-width: 62ch;
       overflow-wrap: anywhere;
     }
+
+    .config-note {
+      font-size: 12px;
+      color: var(--ink-secondary);
+      margin-bottom: 8px;
+    }
+
+    .pii-breakdown {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .pii-chip {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 6px;
+      border: 1px solid var(--border-hairline);
+    }
+
+    .pii-ssn { background: var(--crimson-soft); color: var(--crimson); }
+    .pii-mrn { background: var(--plum-soft); color: var(--plum); }
+    .pii-dob { background: var(--ochre-soft); color: var(--ochre); }
+    .pii-phone { background: var(--cobalt-soft); color: var(--cobalt); }
+    .pii-email { background: var(--forest-soft); color: var(--forest); }
 
     .result-list {
       margin: 0;
@@ -352,9 +510,11 @@
 
     .urgency-pill {
       font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
       font-size: 11px;
+      font-weight: 600;
       text-transform: uppercase;
-      padding: 3px 9px;
+      padding: 4px 10px;
       border-radius: 999px;
       background: var(--surface-soft);
     }
@@ -366,13 +526,30 @@
     .config-input {
       width: 100%;
       min-height: 44px;
-      padding: 8px 13px;
+      padding: 8px 12px;
       border-radius: 8px;
       border: 1px solid var(--border-hairline);
       background: var(--plinth);
+      color: var(--ink);
       font-family: var(--font-mono);
       font-size: 12px;
       margin-bottom: 8px;
+    }
+
+    .fhir-pre {
+      margin: 8px 0 0;
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--plinth);
+      border: 1px solid var(--border-hairline);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.45;
+      color: var(--ink);
+      max-height: 190px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
     }
 
     @media (max-width: 1180px) {
@@ -382,7 +559,8 @@
 
       .studio-grid {
         grid-template-columns: 1fr;
-        padding: 13px;
+        grid-template-rows: minmax(0, 1fr);
+        padding: 10px 12px;
       }
 
       .panel {
@@ -420,7 +598,20 @@
       }
 
       .intake-textarea {
-        min-height: 96px;
+        min-height: 88px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+
+      button:hover {
+        transform: none;
       }
     }
   </style>
@@ -436,6 +627,9 @@
         <span class="telemetry-pill">Route <strong id="routeLabel">ON_DEVICE_STANDBY</strong></span>
         <span class="telemetry-pill hide-sm">PII Masked <strong id="piiCount">0</strong></span>
         <span class="telemetry-pill">Latency <strong id="latencyLabel">0 ms</strong></span>
+        <button type="button" class="theme-btn" id="themeToggleBtn" aria-pressed="false" aria-label="Toggle Daylight and Night Shift theme">
+          Night Shift
+        </button>
       </div>
     </header>
 
@@ -443,7 +637,7 @@
       <section style="display:flex;width:100%;gap:8px;">
         <button type="button" class="m-tab" data-pane="policy" aria-selected="false">1. Routing</button>
         <button type="button" class="m-tab" data-pane="intake" aria-selected="true">2. Field Note</button>
-        <button type="button" class="m-tab" data-pane="output" aria-selected="false">3. Checklist</button>
+        <button type="button" class="m-tab" data-pane="output" aria-selected="false">3. Care Plan</button>
       </section>
     </nav>
 
@@ -456,26 +650,29 @@
         <div class="panel-scroll">
           <button type="button" class="mode-card" data-mode="PREFER_ON_DEVICE" aria-pressed="true">
             <span class="mode-card-title">PREFER_ON_DEVICE (Recommended)</span>
-            <span class="mode-card-sub">Runs Gemini Nano / local extractor first at 0 bytes cloud egress; escalates redacted summary only if needed.</span>
+            <span class="mode-card-sub">Runs Gemini Nano or local clinical extractor first at 0 bytes cloud egress; escalates redacted text only when needed.</span>
           </button>
           <button type="button" class="mode-card" data-mode="ONLY_ON_DEVICE" aria-pressed="false">
             <span class="mode-card-title">ONLY_ON_DEVICE (Strict Air-Gap)</span>
-            <span class="mode-card-sub">Hardware-locked local processing for sensitive health and accessibility notes in offline zones.</span>
+            <span class="mode-card-sub">Hardware-locked local processing for rural home visits, shelters, and cellular blackout zones.</span>
           </button>
           <button type="button" class="mode-card" data-mode="HYBRID_CLOUD_SYNTHESIS" aria-pressed="false">
-            <span class="mode-card-title">HYBRID_CLOUD_SYNTHESIS</span>
-            <span class="mode-card-sub">Strips SSNs, phones, emails, DOBs, and record IDs locally before calling Firebase AI Logic Gemini Flash.</span>
+            <span class="mode-card-title">HYBRID_CLOUD_SYNTHESIS (Gemini Flash)</span>
+            <span class="mode-card-sub">Masks SSNs, MRNs, DOBs, phones, and emails locally before calling our PII-airlocked Gemini cloud gateway.</span>
           </button>
 
           <div class="config-box">
-            <h3>Simulated Network &amp; Optional Firebase Key</h3>
+            <h3>Offline Airlock &amp; Cloud Gateway</h3>
             <button type="button" id="offlineToggleBtn" aria-pressed="false" style="width:100%;margin-bottom:8px;">
-              Network State: Online (Tap to Test Offline Mode)
+              Network State: Online (Tap for Airplane Mode)
             </button>
-            <label class="field-label" for="fbApiKey">Optional Firebase API Key</label>
-            <input type="password" id="fbApiKey" aria-label="Optional Firebase Web API Key" class="config-input" placeholder="Leave blank for 100% local mode" />
-            <label class="field-label" for="fbProjectId">Optional Firebase Project ID</label>
-            <input type="text" id="fbProjectId" aria-label="Optional Firebase Project ID" class="config-input" placeholder="your-firebase-project-id" />
+            <p class="config-note">
+              Hybrid mode connects out of the box to our zero-PII Gemini 3.1 Flash Lite gateway, or accepts your own Firebase AI Logic credentials below.
+            </p>
+            <label class="field-label" for="fbApiKey">Optional Custom Firebase API Key</label>
+            <input type="password" id="fbApiKey" aria-label="Optional Custom Firebase Web API Key" class="config-input" placeholder="Leave blank for built-in Gemini gateway" />
+            <label class="field-label" for="fbProjectId">Optional Custom Firebase Project ID</label>
+            <input type="text" id="fbProjectId" aria-label="Optional Custom Firebase Project ID" class="config-input" placeholder="optional-firebase-project-id" />
           </div>
         </div>
       </section>
@@ -487,12 +684,22 @@
           <span id="nanoProbeLabel" style="font-family:var(--font-mono);font-size:11px;color:var(--ink-secondary);">Probing local model...</span>
         </div>
         <div class="panel-scroll">
+          <div class="voice-bar">
+            <button type="button" class="voice-btn" id="voiceDictateBtn" aria-pressed="false">
+              Dictate Field Note
+            </button>
+            <div class="waveform-wrap">
+              <span class="voice-status" id="voiceStatusLabel">Mic Standby · On-Device</span>
+              <svg id="voiceWaveform" viewBox="0 0 132 32" role="img" aria-label="Acoustic dictation waveform"></svg>
+            </div>
+          </div>
+
           <label class="field-label" for="intakeInput">Raw Voice / Field Note (Stays On Device)</label>
-          <textarea id="intakeInput" aria-label="Raw field intake note" class="intake-textarea" placeholder="Type or paste a field clinic, caregiver, or accessibility intake note here..."></textarea>
+          <textarea id="intakeInput" aria-label="Raw field intake note" class="intake-textarea" placeholder="Dictate, type, or load a clinical or accessibility field intake scenario..."></textarea>
 
           <div class="sample-row">
-            <button type="button" class="sample-btn" data-sample="mobility">Load Mobility + Vitals Sample</button>
-            <button type="button" class="sample-btn" data-sample="sensory">Load Deaf / ASL Intake Sample</button>
+            <button type="button" class="sample-btn" data-sample="mobility">Load Mobility + Vitals Case</button>
+            <button type="button" class="sample-btn" data-sample="sensory">Load Deaf / ASL Case</button>
             <button type="button" class="sample-btn" id="clearBtn">Clear Slate</button>
           </div>
 
@@ -504,7 +711,8 @@
 
           <div class="redaction-box">
             <h3>Client-Side PII Shield Preview (Zero-Cloud Filter)</h3>
-            <p id="redactedPreview">No identifiers scanned yet. Enter a note above to verify local masking.</p>
+            <div class="pii-breakdown" id="piiBreakdown" aria-live="polite"></div>
+            <p id="redactedPreview">No identifiers scanned yet. Enter a note above to verify local token masking.</p>
           </div>
         </div>
       </section>
@@ -518,7 +726,7 @@
         <div class="panel-scroll" id="outputContainer">
           <div class="result-card">
             <h3>Ready for First Note</h3>
-            <p>Enter a note in the center editor (or load an optional sample scenario) and run extraction. Sensitive identifiers stay on your device.</p>
+            <p>Enter a field note in the center workspace (or load an optional sample case) and run extraction. Raw personal identifiers never leave your device.</p>
           </div>
         </div>
       </section>
@@ -531,7 +739,10 @@
       probeOnDeviceModel,
       redactSensitiveIdentifiers,
       runHybridIntakeSession,
+      createServerlessGatewayAdapter,
       createFirebaseAiCloudAdapter,
+      buildFhirR4Bundle,
+      buildAccessibleCareMarkdown,
     } from "./hybrid-router.mjs";
 
     const SAMPLES = {
@@ -541,15 +752,89 @@
 
     let selectedMode = HybridMode.PREFER_ON_DEVICE;
     let simulatedOffline = false;
+    let lastSessionResult = null;
+    let isDictating = false;
+    let recognition = null;
+    let waveAnimId = null;
+    let wavePhase = 0;
 
     const intakeInput = document.getElementById("intakeInput");
     const redactedPreview = document.getElementById("redactedPreview");
+    const piiBreakdown = document.getElementById("piiBreakdown");
     const egressBadge = document.getElementById("egressBadge");
     const routeLabel = document.getElementById("routeLabel");
     const piiCount = document.getElementById("piiCount");
     const latencyLabel = document.getElementById("latencyLabel");
     const urgencyBadge = document.getElementById("urgencyBadge");
     const outputContainer = document.getElementById("outputContainer");
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+    const voiceDictateBtn = document.getElementById("voiceDictateBtn");
+    const voiceStatusLabel = document.getElementById("voiceStatusLabel");
+    const waveSvg = document.getElementById("voiceWaveform");
+
+    function escapeHtml(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function drawWaveform(active) {
+      const w = 132;
+      const h = 32;
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      const stroke = active
+        ? (isDark ? "#F58C8C" : "#8E2424")
+        : (isDark ? "#52C79F" : "#155240");
+
+      const bars = 22;
+      const gap = 3;
+      const barWidth = Math.floor((w - (bars + 1) * gap) / bars);
+      const rects = [];
+      for (let i = 0; i < bars; i++) {
+        const amp = active
+          ? Math.max(4, Math.round((Math.sin(wavePhase + i * 0.55) * 0.5 + 0.5) * (h - 8)))
+          : (i % 3 === 0 ? 6 : 3);
+        const x = gap + i * (barWidth + gap);
+        const y = Math.round((h - amp) / 2);
+        rects.push(`<rect x="${x}" y="${y}" width="${barWidth}" height="${amp}" rx="1" fill="${stroke}" />`);
+      }
+      waveSvg.innerHTML = rects.join("");
+      if (active) {
+        wavePhase += 0.22;
+        waveAnimId = requestAnimationFrame(() => drawWaveform(true));
+      }
+    }
+
+    function highlightRedactedTokens(sanitizedText) {
+      let html = escapeHtml(sanitizedText);
+      html = html
+        .replace(/\[REDACTED-SSN\]/g, '<span class="pii-chip pii-ssn">[REDACTED-SSN]</span>')
+        .replace(/ID: \[REDACTED-ID\]/g, '<span class="pii-chip pii-mrn">ID: [REDACTED-ID]</span>')
+        .replace(/DOB: \[REDACTED-DATE\]/g, '<span class="pii-chip pii-dob">DOB: [REDACTED-DATE]</span>')
+        .replace(/\[REDACTED-PHONE\]/g, '<span class="pii-chip pii-phone">[REDACTED-PHONE]</span>')
+        .replace(/\[REDACTED-EMAIL\]/g, '<span class="pii-chip pii-email">[REDACTED-EMAIL]</span>');
+      return html;
+    }
+
+    function renderBreakdownChips(counts) {
+      const entries = Object.entries(counts || {}).filter(([, c]) => c > 0);
+      if (!entries.length) {
+        piiBreakdown.innerHTML = "";
+        return;
+      }
+      const clsMap = {
+        SSN: "pii-ssn",
+        MRN: "pii-mrn",
+        DOB: "pii-dob",
+        PHONE: "pii-phone",
+        EMAIL: "pii-email",
+      };
+      piiBreakdown.innerHTML = entries
+        .map(([k, count]) => `<span class="pii-chip ${clsMap[k] || "pii-email"}">${escapeHtml(k)}: ${count} masked</span>`)
+        .join("");
+    }
 
     async function initProbe() {
       const probe = await probeOnDeviceModel(window);
@@ -562,22 +847,79 @@
     function updateRedactionLive() {
       const val = intakeInput.value.trim();
       if (!val) {
-        redactedPreview.textContent = "No identifiers scanned yet. Enter a note above to verify local masking.";
+        redactedPreview.textContent = "No identifiers scanned yet. Enter a note above to verify local token masking.";
+        piiBreakdown.innerHTML = "";
         piiCount.textContent = "0";
         return;
       }
       const res = redactSensitiveIdentifiers(val);
-      redactedPreview.textContent = res.sanitizedText;
+      redactedPreview.innerHTML = highlightRedactedTokens(res.sanitizedText);
+      renderBreakdownChips(res.counts);
       piiCount.textContent = String(res.totalRedacted);
     }
 
-    function escapeHtml(s) {
-      return String(s || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
+    themeToggleBtn.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme") || "light";
+      const next = current === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      themeToggleBtn.setAttribute("aria-pressed", next === "dark" ? "true" : "false");
+      themeToggleBtn.textContent = next === "dark" ? "Daylight Mode" : "Night Shift";
+      if (!isDictating) drawWaveform(false);
+    });
+
+    voiceDictateBtn.addEventListener("click", () => {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        voiceStatusLabel.textContent = "Browser speech unavailable · Type or load sample";
+        return;
+      }
+      if (isDictating && recognition) {
+        recognition.stop();
+        return;
+      }
+      try {
+        recognition = new SpeechRec();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = "en-US";
+        recognition.onstart = () => {
+          isDictating = true;
+          voiceDictateBtn.setAttribute("aria-pressed", "true");
+          voiceDictateBtn.textContent = "Stop Dictation";
+          voiceStatusLabel.textContent = "Listening On-Device...";
+          if (waveAnimId) cancelAnimationFrame(waveAnimId);
+          drawWaveform(true);
+        };
+        recognition.onresult = (event) => {
+          let chunk = "";
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              chunk += event.results[i][0].transcript + " ";
+            }
+          }
+          if (chunk.trim()) {
+            intakeInput.value = (intakeInput.value ? intakeInput.value.trim() + " " : "") + chunk.trim();
+            updateRedactionLive();
+          }
+        };
+        recognition.onerror = () => {
+          voiceStatusLabel.textContent = "Mic permission blocked · Keyboard ready";
+        };
+        recognition.onend = () => {
+          isDictating = false;
+          voiceDictateBtn.setAttribute("aria-pressed", "false");
+          voiceDictateBtn.textContent = "Dictate Field Note";
+          if (waveAnimId) cancelAnimationFrame(waveAnimId);
+          drawWaveform(false);
+          if (voiceStatusLabel.textContent === "Listening On-Device...") {
+            voiceStatusLabel.textContent = "Dictation Captured Locally";
+          }
+        };
+        recognition.start();
+      } catch (_) {
+        voiceStatusLabel.textContent = "Speech capture unavailable";
+      }
+    });
 
     function setMobilePane(name) {
       document.querySelectorAll(".m-tab").forEach(b => {
@@ -605,7 +947,7 @@
       btn.setAttribute("aria-pressed", simulatedOffline ? "true" : "false");
       btn.textContent = simulatedOffline
         ? "Network State: Airplane / Offline Mode Active"
-        : "Network State: Online (Tap to Test Offline Mode)";
+        : "Network State: Online (Tap for Airplane Mode)";
     });
 
     document.querySelectorAll("[data-sample]").forEach(btn => {
@@ -618,16 +960,58 @@
 
     document.getElementById("clearBtn").addEventListener("click", () => {
       intakeInput.value = "";
+      lastSessionResult = null;
       updateRedactionLive();
       urgencyBadge.className = "urgency-pill urgency-routine";
       urgencyBadge.textContent = "Standby";
       routeLabel.textContent = "ON_DEVICE_STANDBY";
+      latencyLabel.textContent = "0 ms";
       egressBadge.className = "egress-badge";
       egressBadge.textContent = "0 B Cloud Egress · Local Ready";
-      outputContainer.innerHTML = `<div class="result-card"><h3>Ready for First Note</h3><p>Enter a note in the center editor and run extraction.</p></div>`;
+      outputContainer.innerHTML = `<div class="result-card"><h3>Ready for First Note</h3><p>Enter a field note in the center workspace and run extraction. Raw personal identifiers never leave your device.</p></div>`;
     });
 
     intakeInput.addEventListener("input", updateRedactionLive);
+
+    function wireExportButtons() {
+      const fhirBtn = document.getElementById("exportFhirBtn");
+      const mdBtn = document.getElementById("copyMarkdownBtn");
+      const fhirPreviewWrap = document.getElementById("fhirPreviewWrap");
+
+      if (fhirBtn && lastSessionResult) {
+        fhirBtn.addEventListener("click", () => {
+          const bundle = buildFhirR4Bundle(lastSessionResult.structured, lastSessionResult.telemetry);
+          const jsonStr = JSON.stringify(bundle, null, 2);
+          if (fhirPreviewWrap) {
+            fhirPreviewWrap.innerHTML = `<div class="result-card"><h3>HL7 FHIR R4 Bundle Receipt (De-Identified)</h3><pre class="fhir-pre">${escapeHtml(jsonStr)}</pre></div>`;
+          }
+          const blob = new Blob([jsonStr], { type: "application/fhir+json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "fieldscribe-fhir-r4-bundle.json";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1200);
+          fhirBtn.textContent = "FHIR R4 Bundle Exported";
+        });
+      }
+
+      if (mdBtn && lastSessionResult) {
+        mdBtn.addEventListener("click", async () => {
+          const md = buildAccessibleCareMarkdown(lastSessionResult.structured, lastSessionResult.telemetry);
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(md);
+            }
+            mdBtn.textContent = "Care Handoff Copied";
+          } catch (_) {
+            mdBtn.textContent = "Care Handoff Ready";
+          }
+        });
+      }
+    }
 
     document.getElementById("extractBtn").addEventListener("click", async () => {
       const text = intakeInput.value.trim();
@@ -636,31 +1020,55 @@
         return;
       }
 
+      const extractBtn = document.getElementById("extractBtn");
+      extractBtn.textContent = "Synthesizing Plan...";
+
       let cloudAdapter = null;
       const apiKey = document.getElementById("fbApiKey").value.trim();
       const projectId = document.getElementById("fbProjectId").value.trim();
-      if (apiKey && projectId && !simulatedOffline) {
-        try {
-          cloudAdapter = await createFirebaseAiCloudAdapter({ apiKey, projectId, authDomain: projectId + ".firebaseapp.com" });
-        } catch (_) {
-          cloudAdapter = null;
+      const onlineAllowed = navigator.onLine && !simulatedOffline;
+
+      if (onlineAllowed) {
+        if (apiKey && projectId) {
+          try {
+            cloudAdapter = await createFirebaseAiCloudAdapter({ apiKey, projectId, authDomain: projectId + ".firebaseapp.com" });
+          } catch (_) {
+            cloudAdapter = createServerlessGatewayAdapter();
+          }
+        } else if (selectedMode === HybridMode.HYBRID_CLOUD_SYNTHESIS) {
+          cloudAdapter = createServerlessGatewayAdapter();
         }
       }
 
-      const res = await runHybridIntakeSession({
-        rawText: text,
-        mode: selectedMode,
-        isOnline: navigator.onLine && !simulatedOffline,
-        globalScope: window,
-        cloudAdapter,
-      });
+      let res;
+      try {
+        res = await runHybridIntakeSession({
+          rawText: text,
+          mode: selectedMode,
+          isOnline: onlineAllowed,
+          globalScope: window,
+          cloudAdapter,
+        });
+      } catch (_) {
+        res = await runHybridIntakeSession({
+          rawText: text,
+          mode: HybridMode.PREFER_ON_DEVICE,
+          isOnline: false,
+          globalScope: window,
+          cloudAdapter: null,
+        });
+      } finally {
+        extractBtn.textContent = "Extract Structured Triage Plan";
+      }
 
+      lastSessionResult = res;
       const tel = res.telemetry;
       const st = res.structured;
       routeLabel.textContent = tel.route;
       piiCount.textContent = String(tel.piiRedactedCount);
       latencyLabel.textContent = tel.latencyMs + " ms";
-      redactedPreview.textContent = res.redactedPreview;
+      redactedPreview.innerHTML = highlightRedactedTokens(res.redactedPreview);
+      renderBreakdownChips(tel.redactionBreakdown);
 
       if (tel.cloudBytesSent === 0) {
         egressBadge.className = "egress-badge";
@@ -684,6 +1092,11 @@
         : "";
 
       outputContainer.innerHTML = `
+        <div class="export-row">
+          <button type="button" class="export-btn" id="exportFhirBtn">Export HL7 FHIR R4 (.json)</button>
+          <button type="button" class="export-btn" id="copyMarkdownBtn">Copy Care Handoff (.md)</button>
+        </div>
+        <div id="fhirPreviewWrap"></div>
         <div class="result-card">
           <h3>De-Identified Triage Summary</h3>
           <p>${escapeHtml(st.summary)}</p>
@@ -699,11 +1112,14 @@
         </div>
       `;
 
+      wireExportButtons();
+
       if (window.innerWidth <= 1180) {
         setMobilePane("output");
       }
     });
 
+    drawWaveform(false);
     initProbe();
   </script>
 </body>

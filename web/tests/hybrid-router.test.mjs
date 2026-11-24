@@ -4,6 +4,8 @@ import {
   HybridMode,
   redactSensitiveIdentifiers,
   extractStructuredIntakeLocally,
+  buildFhirR4Bundle,
+  buildAccessibleCareMarkdown,
   runHybridIntakeSession,
 } from "../hybrid-router.mjs";
 
@@ -78,10 +80,10 @@ test("PREFER_ON_DEVICE uses browser LanguageModel (Gemini Nano) when available w
   assert.deepEqual(res.structured.accommodations, ["ASL interpreter"]);
 });
 
-test("HYBRID_CLOUD_SYNTHESIS redacts PII before invoking Firebase AI Logic cloud adapter", async () => {
+test("HYBRID_CLOUD_SYNTHESIS redacts PII before invoking cloud adapter and builds valid FHIR R4 Bundle", async () => {
   let receivedPayload = "";
   const res = await runHybridIntakeSession({
-    rawText: "Call 415-890-1234 or email caregiver@clinic.org. Wheelchair ramp needed at north entrance.",
+    rawText: "Call 415-890-1234 or email caregiver@clinic.org. Wheelchair ramp needed at north entrance. BP 140/88 mmHg.",
     mode: HybridMode.HYBRID_CLOUD_SYNTHESIS,
     isOnline: true,
     globalScope: {},
@@ -92,7 +94,7 @@ test("HYBRID_CLOUD_SYNTHESIS redacts PII before invoking Firebase AI Logic cloud
         summary: "Arrange north entrance wheelchair ramp.",
         accommodations: ["Wheelchair ramp"],
         followUpActions: ["Notify facilities"],
-        vitalsOrSignals: [],
+        vitalsOrSignals: ["BP 140/88 mmHg"],
       };
     },
   });
@@ -104,4 +106,12 @@ test("HYBRID_CLOUD_SYNTHESIS redacts PII before invoking Firebase AI Logic cloud
   assert.ok(res.telemetry.cloudBytesSent > 0);
   assert.equal(res.telemetry.piiRedactedCount, 2);
   assert.equal(res.telemetry.route, "FIREBASE_AI_HYBRID_CLOUD_REDACTED");
+
+  const bundle = buildFhirR4Bundle(res.structured, res.telemetry);
+  assert.equal(bundle.resourceType, "Bundle");
+  assert.equal(bundle.entry.length, 3);
+
+  const md = buildAccessibleCareMarkdown(res.structured, res.telemetry);
+  assert.ok(md.includes("PRIORITY"));
+  assert.ok(md.includes("Wheelchair ramp"));
 });
