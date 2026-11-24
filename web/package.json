@@ -1,0 +1,14 @@
+{
+  "name": "fieldscribe-local-web",
+  "version": "1.0.0",
+  "description": "Privacy-first hybrid on-device + cloud accessibility & field intake studio powered by Firebase AI Logic",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/hybrid-router.test.mjs",
+    "serve": "npx --yes serve . -l 4173"
+  },
+  "dependencies": {
+    "firebase": "^13.4.0"
+  }
+}
