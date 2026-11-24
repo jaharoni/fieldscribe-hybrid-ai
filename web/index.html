@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>FieldScribe Local | Hybrid On-Device &amp; Cloud Intake Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --canvas: #F5F6F3;
+      --plinth: #FFFFFF;
+      --rail: #EAECE6;
+      --surface-soft: #EEF1EB;
+      --ink: #121A17;
+      --ink-secondary: #495751;
+      --ink-muted: #5F6F68;
+      --border-hairline: rgba(18, 26, 23, 0.12);
+      --border-strong: rgba(18, 26, 23, 0.25);
+      --forest: #155240;
+      --forest-hover: #0F3E30;
+      --forest-soft: #E3F2EC;
+      --cobalt: #1D4B82;
+      --cobalt-soft: #E7F0FA;
+      --ochre: #8C5112;
+      --ochre-soft: #FBF1E2;
+      --crimson: #912828;
+      --crimson-soft: #FCEBEB;
+      --font-display: "Instrument Serif", Georgia, serif;
+      --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+      --shadow-plinth: 0 1px 2px rgba(18, 26, 23, 0.04), 0 12px 28px -16px rgba(18, 26, 23, 0.12);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100dvh;
+      width: 100vw;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: var(--canvas);
+      background-image:
+        radial-gradient(circle at 15% 12%, rgba(21, 82, 64, 0.05), transparent 45%),
+        radial-gradient(circle at 86% 85%, rgba(29, 75, 130, 0.045), transparent 45%),
+        radial-gradient(rgba(18, 26, 23, 0.035) 1px, transparent 0);
+      background-size: 100% 100%, 100% 100%, 21px 21px;
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      width: 100vw;
+      overflow: visible;
+      container-type: inline-size;
+    }
+
+    .top-bar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 13px;
+      padding: 13px 21px;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-hairline);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: baseline;
+      gap: 13px;
+      min-width: 0;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 2.2vw, 1.85rem);
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      white-space: nowrap;
+    }
+
+    .egress-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: var(--forest-soft);
+      color: var(--forest);
+      border: 1px solid rgba(21, 82, 64, 0.28);
+      white-space: nowrap;
+    }
+
+    .egress-badge.is-hybrid {
+      background: var(--cobalt-soft);
+      color: var(--cobalt);
+      border-color: rgba(29, 75, 130, 0.28);
+    }
+
+    .telemetry-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .telemetry-pill {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      padding: 6px 13px;
+      border-radius: 999px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border-hairline);
+      color: var(--ink-secondary);
+      white-space: nowrap;
+    }
+
+    .telemetry-pill strong {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    button {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 600;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 8px 13px;
+      border-radius: 10px;
+      border: 1px solid var(--border-hairline);
+      background: var(--plinth);
+      color: var(--ink);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 180ms var(--ease-spring), background-color 180ms var(--ease-spring), border-color 180ms var(--ease-spring), opacity 180ms var(--ease-spring);
+    }
+
+    button:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+
+    button:focus-visible, textarea:focus-visible, input:focus-visible {
+      outline: 2px solid var(--forest);
+      outline-offset: 2px;
+    }
+
+    .mobile-tabs {
+      display: none;
+      flex: 0 0 auto;
+      padding: 8px 13px;
+      background: var(--rail);
+      border-bottom: 1px solid var(--border-hairline);
+      gap: 8px;
+    }
+
+    .mobile-tabs button {
+      flex: 1 1 0;
+      font-size: 12px;
+      padding: 6px 8px;
+      background: transparent;
+      border-color: transparent;
+      color: var(--ink-secondary);
+      white-space: nowrap;
+    }
+
+    .mobile-tabs button[aria-selected="true"] {
+      background: var(--plinth);
+      border-color: var(--border-hairline);
+      color: var(--ink);
+    }
+
+    .studio-grid {
+      flex: 1 1 0;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 310px minmax(340px, 1fr) minmax(360px, 460px);
+      gap: 13px;
+      padding: 13px 21px 21px;
+      overflow: visible;
+      container-type: inline-size;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      background: var(--plinth);
+      border: 1px solid var(--border-hairline);
+      border-radius: 14px;
+      box-shadow: var(--shadow-plinth);
+      overflow: visible;
+    }
+
+    .panel-head {
+      flex: 0 0 auto;
+      padding: 13px 21px;
+      border-bottom: 1px solid var(--border-hairline);
+      border-top-left-radius: 13px;
+      border-top-right-radius: 13px;
+      background: rgba(245, 246, 243, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--ink-secondary);
+    }
+
+    .panel-scroll {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 13px 21px 21px;
+    }
+
+    .mode-card {
+      width: 100%;
+      text-align: left;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 13px;
+      margin-bottom: 8px;
+      background: var(--canvas);
+    }
+
+    .mode-card[aria-pressed="true"] {
+      background: var(--forest-soft);
+      border-color: var(--forest);
+    }
+
+    .mode-card-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .mode-card-sub {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--ink-secondary);
+      max-width: 62ch;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .intake-textarea {
+      width: 100%;
+      min-height: 170px;
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid var(--border-hairline);
+      background: var(--canvas);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.55;
+      resize: vertical;
+      margin-bottom: 13px;
+    }
+
+    .sample-row, .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 13px;
+    }
+
+    .sample-btn {
+      font-size: 12px;
+      background: var(--surface-soft);
+      color: var(--ink-secondary);
+    }
+
+    .primary-run-btn {
+      flex: 1 1 200px;
+      background: var(--forest);
+      border-color: var(--forest);
+      color: #FFFFFF;
+    }
+
+    .primary-run-btn:hover {
+      background: var(--forest-hover);
+      border-color: var(--forest-hover);
+    }
+
+    .redaction-box, .result-card, .config-box {
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid var(--border-hairline);
+      background: var(--canvas);
+      margin-bottom: 13px;
+    }
+
+    .result-card h3, .redaction-box h3, .config-box h3 {
+      margin: 0 0 6px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--ink-secondary);
+    }
+
+    .result-card p, .redaction-box p {
+      margin: 0;
+      font-size: 13.5px;
+      max-width: 62ch;
+      overflow-wrap: anywhere;
+    }
+
+    .result-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13.5px;
+      max-width: 62ch;
+    }
+
+    .urgency-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--surface-soft);
+    }
+
+    .urgency-urgent { background: var(--crimson-soft); color: var(--crimson); }
+    .urgency-priority { background: var(--ochre-soft); color: var(--ochre); }
+    .urgency-routine { background: var(--forest-soft); color: var(--forest); }
+
+    .config-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 8px 13px;
+      border-radius: 8px;
+      border: 1px solid var(--border-hairline);
+      background: var(--plinth);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 1180px) {
+      .mobile-tabs {
+        display: flex;
+      }
+
+      .studio-grid {
+        grid-template-columns: 1fr;
+        padding: 13px;
+      }
+
+      .panel {
+        display: none;
+      }
+
+      .panel.is-mobile-active {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .top-bar {
+        padding: 8px 13px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .telemetry-pill.hide-sm {
+        display: none;
+      }
+    }
+
+    @media (max-height: 500px) {
+      .top-bar {
+        padding: 6px 13px;
+      }
+
+      .mobile-tabs {
+        padding: 4px 13px;
+      }
+
+      .studio-grid {
+        padding: 8px 13px;
+      }
+
+      .intake-textarea {
+        min-height: 96px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="brand-group">
+        <h1 class="brand-title">FieldScribe Local</h1>
+        <span class="egress-badge" id="egressBadge">0 B Cloud Egress · Local Ready</span>
+      </div>
+      <div class="telemetry-strip" aria-label="Inference Telemetry">
+        <span class="telemetry-pill">Route <strong id="routeLabel">ON_DEVICE_STANDBY</strong></span>
+        <span class="telemetry-pill hide-sm">PII Masked <strong id="piiCount">0</strong></span>
+        <span class="telemetry-pill">Latency <strong id="latencyLabel">0 ms</strong></span>
+      </div>
+    </header>
+
+    <nav class="mobile-tabs" aria-label="Studio Sections">
+      <section style="display:flex;width:100%;gap:8px;">
+        <button type="button" class="m-tab" data-pane="policy" aria-selected="false">1. Routing</button>
+        <button type="button" class="m-tab" data-pane="intake" aria-selected="true">2. Field Note</button>
+        <button type="button" class="m-tab" data-pane="output" aria-selected="false">3. Checklist</button>
+      </section>
+    </nav>
+
+    <main class="studio-grid">
+      <!-- Left Column: Firebase AI Logic Routing Policy -->
+      <section class="panel" id="pane-policy" aria-label="Hybrid Inference Policy">
+        <div class="panel-head">
+          <h2>Firebase AI Logic Policy</h2>
+        </div>
+        <div class="panel-scroll">
+          <button type="button" class="mode-card" data-mode="PREFER_ON_DEVICE" aria-pressed="true">
+            <span class="mode-card-title">PREFER_ON_DEVICE (Recommended)</span>
+            <span class="mode-card-sub">Runs Gemini Nano / local extractor first at 0 bytes cloud egress; escalates redacted summary only if needed.</span>
+          </button>
+          <button type="button" class="mode-card" data-mode="ONLY_ON_DEVICE" aria-pressed="false">
+            <span class="mode-card-title">ONLY_ON_DEVICE (Strict Air-Gap)</span>
+            <span class="mode-card-sub">Hardware-locked local processing for sensitive health and accessibility notes in offline zones.</span>
+          </button>
+          <button type="button" class="mode-card" data-mode="HYBRID_CLOUD_SYNTHESIS" aria-pressed="false">
+            <span class="mode-card-title">HYBRID_CLOUD_SYNTHESIS</span>
+            <span class="mode-card-sub">Strips SSNs, phones, emails, DOBs, and record IDs locally before calling Firebase AI Logic Gemini Flash.</span>
+          </button>
+
+          <div class="config-box">
+            <h3>Simulated Network &amp; Optional Firebase Key</h3>
+            <button type="button" id="offlineToggleBtn" aria-pressed="false" style="width:100%;margin-bottom:8px;">
+              Network State: Online (Tap to Test Offline Mode)
+            </button>
+            <label class="field-label" for="fbApiKey">Optional Firebase API Key</label>
+            <input type="password" id="fbApiKey" aria-label="Optional Firebase Web API Key" class="config-input" placeholder="Leave blank for 100% local mode" />
+            <label class="field-label" for="fbProjectId">Optional Firebase Project ID</label>
+            <input type="text" id="fbProjectId" aria-label="Optional Firebase Project ID" class="config-input" placeholder="your-firebase-project-id" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Center Column: Raw Field Intake Note -->
+      <section class="panel is-mobile-active" id="pane-intake" aria-label="Field Note Editor">
+        <div class="panel-head">
+          <h2>Field &amp; Accessibility Intake</h2>
+          <span id="nanoProbeLabel" style="font-family:var(--font-mono);font-size:11px;color:var(--ink-secondary);">Probing local model...</span>
+        </div>
+        <div class="panel-scroll">
+          <label class="field-label" for="intakeInput">Raw Voice / Field Note (Stays On Device)</label>
+          <textarea id="intakeInput" aria-label="Raw field intake note" class="intake-textarea" placeholder="Type or paste a field clinic, caregiver, or accessibility intake note here..."></textarea>
+
+          <div class="sample-row">
+            <button type="button" class="sample-btn" data-sample="mobility">Load Mobility + Vitals Sample</button>
+            <button type="button" class="sample-btn" data-sample="sensory">Load Deaf / ASL Intake Sample</button>
+            <button type="button" class="sample-btn" id="clearBtn">Clear Slate</button>
+          </div>
+
+          <div class="action-row">
+            <button type="button" class="primary-run-btn" data-intent="primary" id="extractBtn">
+              Extract Structured Triage Plan
+            </button>
+          </div>
+
+          <div class="redaction-box">
+            <h3>Client-Side PII Shield Preview (Zero-Cloud Filter)</h3>
+            <p id="redactedPreview">No identifiers scanned yet. Enter a note above to verify local masking.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Structured Triage Output -->
+      <section class="panel" id="pane-output" aria-label="Structured Output">
+        <div class="panel-head">
+          <h2>Structured Action Plan</h2>
+          <span class="urgency-pill urgency-routine" id="urgencyBadge">Standby</span>
+        </div>
+        <div class="panel-scroll" id="outputContainer">
+          <div class="result-card">
+            <h3>Ready for First Note</h3>
+            <p>Enter a note in the center editor (or load an optional sample scenario) and run extraction. Sensitive identifiers stay on your device.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import {
+      HybridMode,
+      probeOnDeviceModel,
+      redactSensitiveIdentifiers,
+      runHybridIntakeSession,
+      createFirebaseAiCloudAdapter,
+    } from "./hybrid-router.mjs";
+
+    const SAMPLES = {
+      mobility: "Home visit Case # HC-40821, DOB: 08/14/1949. Call daughter at (503) 555-0194 or email care.team@example.org. Client uses a motorized wheelchair and requires step-free ramp access plus a Spanish interpreter. BP 152/94 mmHg, SpO2 96%. Needs urgent prescription renewal confirmed within 24 hours.",
+      sensory: "Clinic intake MRN: NW-77310, SSN 412-00-8891. Deaf client requests certified ASL interpreter and high-contrast large print consent forms in a quiet room. Needs follow-up audiology referral scheduled this week."
+    };
+
+    let selectedMode = HybridMode.PREFER_ON_DEVICE;
+    let simulatedOffline = false;
+
+    const intakeInput = document.getElementById("intakeInput");
+    const redactedPreview = document.getElementById("redactedPreview");
+    const egressBadge = document.getElementById("egressBadge");
+    const routeLabel = document.getElementById("routeLabel");
+    const piiCount = document.getElementById("piiCount");
+    const latencyLabel = document.getElementById("latencyLabel");
+    const urgencyBadge = document.getElementById("urgencyBadge");
+    const outputContainer = document.getElementById("outputContainer");
+
+    async function initProbe() {
+      const probe = await probeOnDeviceModel(window);
+      const label = document.getElementById("nanoProbeLabel");
+      label.textContent = probe.supported
+        ? "Gemini Nano Ready"
+        : "Local Engine Active (" + probe.apiSurface + ")";
+    }
+
+    function updateRedactionLive() {
+      const val = intakeInput.value.trim();
+      if (!val) {
+        redactedPreview.textContent = "No identifiers scanned yet. Enter a note above to verify local masking.";
+        piiCount.textContent = "0";
+        return;
+      }
+      const res = redactSensitiveIdentifiers(val);
+      redactedPreview.textContent = res.sanitizedText;
+      piiCount.textContent = String(res.totalRedacted);
+    }
+
+    function escapeHtml(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function setMobilePane(name) {
+      document.querySelectorAll(".m-tab").forEach(b => {
+        b.setAttribute("aria-selected", b.getAttribute("data-pane") === name ? "true" : "false");
+      });
+      ["policy", "intake", "output"].forEach(id => {
+        document.getElementById("pane-" + id).classList.toggle("is-mobile-active", id === name);
+      });
+    }
+
+    document.querySelectorAll(".m-tab").forEach(btn => {
+      btn.addEventListener("click", () => setMobilePane(btn.getAttribute("data-pane")));
+    });
+
+    document.querySelectorAll(".mode-card").forEach(btn => {
+      btn.addEventListener("click", () => {
+        selectedMode = btn.getAttribute("data-mode");
+        document.querySelectorAll(".mode-card").forEach(b => b.setAttribute("aria-pressed", b === btn ? "true" : "false"));
+      });
+    });
+
+    document.getElementById("offlineToggleBtn").addEventListener("click", (e) => {
+      simulatedOffline = !simulatedOffline;
+      const btn = e.currentTarget;
+      btn.setAttribute("aria-pressed", simulatedOffline ? "true" : "false");
+      btn.textContent = simulatedOffline
+        ? "Network State: Airplane / Offline Mode Active"
+        : "Network State: Online (Tap to Test Offline Mode)";
+    });
+
+    document.querySelectorAll("[data-sample]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const key = btn.getAttribute("data-sample");
+        intakeInput.value = SAMPLES[key] || "";
+        updateRedactionLive();
+      });
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      intakeInput.value = "";
+      updateRedactionLive();
+      urgencyBadge.className = "urgency-pill urgency-routine";
+      urgencyBadge.textContent = "Standby";
+      routeLabel.textContent = "ON_DEVICE_STANDBY";
+      egressBadge.className = "egress-badge";
+      egressBadge.textContent = "0 B Cloud Egress · Local Ready";
+      outputContainer.innerHTML = `<div class="result-card"><h3>Ready for First Note</h3><p>Enter a note in the center editor and run extraction.</p></div>`;
+    });
+
+    intakeInput.addEventListener("input", updateRedactionLive);
+
+    document.getElementById("extractBtn").addEventListener("click", async () => {
+      const text = intakeInput.value.trim();
+      if (!text) {
+        updateRedactionLive();
+        return;
+      }
+
+      let cloudAdapter = null;
+      const apiKey = document.getElementById("fbApiKey").value.trim();
+      const projectId = document.getElementById("fbProjectId").value.trim();
+      if (apiKey && projectId && !simulatedOffline) {
+        try {
+          cloudAdapter = await createFirebaseAiCloudAdapter({ apiKey, projectId, authDomain: projectId + ".firebaseapp.com" });
+        } catch (_) {
+          cloudAdapter = null;
+        }
+      }
+
+      const res = await runHybridIntakeSession({
+        rawText: text,
+        mode: selectedMode,
+        isOnline: navigator.onLine && !simulatedOffline,
+        globalScope: window,
+        cloudAdapter,
+      });
+
+      const tel = res.telemetry;
+      const st = res.structured;
+      routeLabel.textContent = tel.route;
+      piiCount.textContent = String(tel.piiRedactedCount);
+      latencyLabel.textContent = tel.latencyMs + " ms";
+      redactedPreview.textContent = res.redactedPreview;
+
+      if (tel.cloudBytesSent === 0) {
+        egressBadge.className = "egress-badge";
+        egressBadge.textContent = "0 B Cloud Egress · Verified Local";
+      } else {
+        egressBadge.className = "egress-badge is-hybrid";
+        egressBadge.textContent = tel.cloudBytesSent + " B Redacted Cloud Payload";
+      }
+
+      urgencyBadge.className = "urgency-pill urgency-" + (st.urgency || "routine");
+      urgencyBadge.textContent = st.urgency || "routine";
+
+      const accItems = (st.accommodations && st.accommodations.length)
+        ? st.accommodations.map(x => `<li>${escapeHtml(x)}</li>`).join("")
+        : `<li>Standard intake environment</li>`;
+      const actItems = (st.followUpActions && st.followUpActions.length)
+        ? st.followUpActions.map(x => `<li>${escapeHtml(x)}</li>`).join("")
+        : `<li>No immediate follow-up actions flagged</li>`;
+      const vitalItems = (st.vitalsOrSignals && st.vitalsOrSignals.length)
+        ? `<div class="result-card"><h3>Extracted Vitals &amp; Signals</h3><ul class="result-list">${st.vitalsOrSignals.map(x => `<li>${escapeHtml(x)}</li>`).join("")}</ul></div>`
+        : "";
+
+      outputContainer.innerHTML = `
+        <div class="result-card">
+          <h3>De-Identified Triage Summary</h3>
+          <p>${escapeHtml(st.summary)}</p>
+        </div>
+        <div class="result-card">
+          <h3>Accessibility &amp; Communication Accommodations</h3>
+          <ul class="result-list">${accItems}</ul>
+        </div>
+        ${vitalItems}
+        <div class="result-card">
+          <h3>Recommended Next Actions</h3>
+          <ul class="result-list">${actItems}</ul>
+        </div>
+      `;
+
+      if (window.innerWidth <= 1180) {
+        setMobilePane("output");
+      }
+    });
+
+    initProbe();
+  </script>
+</body>
+</html>
