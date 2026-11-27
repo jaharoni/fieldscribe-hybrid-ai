@@ -1,0 +1,72 @@
+{
+  "schema_version": "2.0.0",
+  "plan_id": "DP-FIELDSCRIBE-LOCAL-72fac51f",
+  "slug": "fieldscribe-local",
+  "title": "FieldScribe Local Clinical Intake",
+  "intent": "Privacy-first hybrid on-device PHI redaction and clinical care summary studio",
+  "planned_at": "2026-11-27T10:54:10.638363+00:00",
+  "planned_epoch": 1795776850,
+  "app_dir": "clean-room-workspace",
+  "atelier_studios": {
+    "open_design_5250": {
+      "online": true,
+      "http_status": 200
+    },
+    "inception_design_5460": {
+      "online": true,
+      "http_status": 200
+    },
+    "atelier_desktop_5180": {
+      "online": true,
+      "http_status": 200
+    }
+  },
+  "lineage": {
+    "product": "fieldscribe-local",
+    "bg": "#f8f8f8",
+    "accent": "#1f6b3a",
+    "display_font": "Unbounded",
+    "body_font": "Onest",
+    "mono_font": "IBM Plex Mono",
+    "topology": "UNIQUE NON-STATIC TOPOLOGY (The well-kept board): The whole page is a board of tiles fitted edge to edge with narrow gaps, like a tidy desk seen from above. Each tile is one thing: the name, a statement, a photograph, a number, a link, a short list. There is no hero and no sequence of bands; the page is one c MUST include bespoke non-repeated layout, real interactive kinetic layer (Canvas/WebGL/animated SVG/drag physics), working slide-out Settings & Detail drawers, and zero static flat card clones.",
+    "motion_engine": "Drag row: Live spring-damped motion, drag/scrub interaction, animated transitions",
+    "surface_path": "web/index.html",
+    "claimed_at": "2026-11-27T10:54:10.638008+00:00"
+  },
+  "scroll_architecture": "zero_scroll_paged",
+  "screen_budgets": {
+    "iphone_safari_390x664": {
+      "viewport": [
+        390,
+        664
+      ],
+      "header_max_px": 52,
+      "header_planned_px": 48,
+      "header_max_items": 2,
+      "controls_strip_max_px": 48,
+      "controls_planned_px": 42,
+      "filter_strategy": "bottom_sheet",
+      "bottom_nav_max_px": 56,
+      "bottom_nav_planned_px": 54,
+      "chrome_total_pct": 21.7,
+      "primary_stage_min_pct": 74.3,
+      "max_inner_scroll_screens": 1.45,
+      "forbid_desktop_copy_on_touch": true
+    },
+    "desktop_1440x900": {
+      "viewport": [
+        1440,
+        900
+      ],
+      "header_max_px": 58,
+      "primary_stage_min_pct": 78.0,
+      "max_inner_scroll_screens": 1.45
+    }
+  },
+  "interactive_controls": [
+    "Primary Stage Interactive Controls (zero dead buttons)",
+    "Slide-Over / Bottom-Sheet Settings & Filter Drawer (open, apply, reset, Escape/backdrop close)",
+    "Bounded Deck / View Switcher (zero endless scroll)",
+    "LocalStorage State Persistence across reloads"
+  ]
+}

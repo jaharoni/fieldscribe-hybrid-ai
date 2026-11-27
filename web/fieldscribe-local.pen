@@ -1,0 +1,117 @@
+{
+  "schema": "https://pen.dev/schemas/v2.1/document.pen.json",
+  "engine": "Atelier OpenDesign (:5250) + Inception Design (:5460)",
+  "penId": "pen_fieldscribe_local",
+  "planId": "DP-FIELDSCRIBE-LOCAL-72fac51f",
+  "title": "FieldScribe Local Clinical Intake",
+  "savedAt": "2026-11-27T10:54:10.638383+00:00",
+  "preservedFonts": [
+    "Unbounded",
+    "Onest",
+    "IBM Plex Mono"
+  ],
+  "palette": {
+    "canvas": "#f8f8f8",
+    "accent": "#1f6b3a"
+  },
+  "frames": [
+    {
+      "frameId": "iphone-safari-fieldscribe-local-390x664",
+      "frameName": "Real iPhone Safari Visible Viewport (390x664)",
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 664,
+      "viewport": "390x664",
+      "children": [
+        {
+          "id": "mobile-header",
+          "type": "frame",
+          "role": "header",
+          "name": "Compact 2-Slot Mobile Header",
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 48,
+          "maxItems": 2,
+          "overflowRule": "grid-template-columns: minmax(0,1fr) auto; ellipsis title; zero center badges"
+        },
+        {
+          "id": "mobile-compact-bar",
+          "type": "frame",
+          "role": "controls",
+          "name": "1-Row Search + Filter Bottom-Sheet Trigger",
+          "x": 0,
+          "y": 48,
+          "width": 390,
+          "height": 42,
+          "filterStrategy": "bottom_sheet"
+        },
+        {
+          "id": "mobile-primary-stage",
+          "type": "frame",
+          "role": "primary-stage",
+          "name": "Primary Zero-Scroll Stage (zero_scroll_paged)",
+          "x": 0,
+          "y": 90,
+          "width": 390,
+          "height": 520,
+          "viewportSharePct": 78.3
+        },
+        {
+          "id": "mobile-bottom-nav",
+          "type": "frame",
+          "role": "navigation",
+          "name": "Safe-Area Bottom Tab Bar (Non-Occluding)",
+          "x": 0,
+          "y": 610,
+          "width": 390,
+          "height": 54
+        }
+      ]
+    },
+    {
+      "frameId": "desktop-studio-fieldscribe-local-1440x900",
+      "frameName": "Desktop Studio Viewport (1440x900)",
+      "x": 460,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "viewport": "1440x900",
+      "children": [
+        {
+          "id": "desktop-header",
+          "type": "frame",
+          "role": "header",
+          "name": "Desktop Command Header",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 56
+        },
+        {
+          "id": "desktop-primary-workbench",
+          "type": "frame",
+          "role": "primary-stage",
+          "name": "Desktop Workbench Stage (zero_scroll_paged)",
+          "x": 0,
+          "y": 56,
+          "width": 1440,
+          "height": 844,
+          "viewportSharePct": 93.8
+        },
+        {
+          "id": "desktop-slideover-drawer",
+          "type": "frame",
+          "role": "overlay-drawer",
+          "name": "Contextual Slide-Over Inspector & Settings Drawer",
+          "x": 960,
+          "y": 0,
+          "width": 480,
+          "height": 900,
+          "defaultHidden": true
+        }
+      ]
+    }
+  ]
+}
