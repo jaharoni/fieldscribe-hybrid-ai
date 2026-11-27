@@ -4,6 +4,7 @@
 - **Project Title**: `FieldScribe Local`
 - **Tagline**: Privacy-first hybrid on-device + cloud clinical and accessibility field-intake studio across Web & Swift 6 iOS (`0 bytes` raw PII cloud egress).
 - **Try It Out Live URL**: https://jaharoni.github.io/fieldscribe-hybrid-ai/
+- **Unlisted Demo Video URL**: https://youtu.be/WkAfq2tS6_E
 - **Public GitHub Repository**: https://github.com/jaharoni/fieldscribe-hybrid-ai
 
 ---

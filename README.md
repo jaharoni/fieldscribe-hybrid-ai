@@ -3,6 +3,7 @@
 Built for **#BuildHybridAI 2026** across **Web (PWA)** and **Native iOS (Swift 6 / SwiftUI)** using the **Firebase AI Logic Hybrid Inference SDK** (`InferenceMode.PREFER_ON_DEVICE`, `InferenceMode.ONLY_ON_DEVICE`, and PII-redacted `InferenceMode.PREFER_IN_CLOUD`).
 
 - **Live Zero-Setup Web Studio**: https://jaharoni.github.io/fieldscribe-hybrid-ai/
+- **Unlisted Demo Video**: https://youtu.be/WkAfq2tS6_E
 - **Source Repository**: https://github.com/jaharoni/fieldscribe-hybrid-ai
 
 ## Why FieldScribe Local Exists
